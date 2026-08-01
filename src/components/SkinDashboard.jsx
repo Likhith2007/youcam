@@ -27,6 +27,8 @@ export default function SkinDashboard({ analysisResult }) {
   const scoreTheme = getScoreColor(overallScore);
   const strokeDashoffset = 360 - (360 * overallScore) / 100;
 
+  const reportZipUrl = analysisResult?.reportZipUrl;
+
   return (
     <div className="w-full glass-panel-glow rounded-3xl p-6 sm:p-8 mb-8 border border-teal-500/30">
       
@@ -43,12 +45,24 @@ export default function SkinDashboard({ analysisResult }) {
           </div>
           <p className="text-xs text-slate-400 mt-1 flex items-center space-x-2">
             <Clock className="w-3.5 h-3.5 text-teal-400" />
-            <span>Analyzed at {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Analyzed at {new Date(timestamp && !isNaN(new Date(timestamp)) ? timestamp : Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           </p>
         </div>
 
-        {/* Quick Readouts */}
-        <div className="flex items-center space-x-3 text-xs">
+        {/* Quick Readouts & Download Button */}
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          {reportZipUrl && (
+            <a
+              href={reportZipUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-semibold flex items-center space-x-1.5 shadow-lg shadow-amber-500/20 transition-all"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Download YouCam .zip</span>
+            </a>
+          )}
+
           <div className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center space-x-2">
             <UserCheck className="w-4 h-4 text-teal-400" />
             <div>

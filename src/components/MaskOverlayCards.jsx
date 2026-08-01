@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
-import { Layers, Flame, Droplets, ShieldAlert, Sparkles, Eye, Maximize2, X } from 'lucide-react';
+import { Layers, Flame, Droplets, ShieldAlert, Sparkles, Eye, Maximize2, X, CircleDot, Activity } from 'lucide-react';
 
-export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }) {
+export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [], masks = null }) {
   const [activeModalMask, setActiveModalMask] = useState(null);
 
   if (!imagePreview) return null;
 
   const acneHotspots = heatmap.filter(h => h.type === 'acne');
-  const textureHotspots = heatmap.filter(h => h.type === 'texture');
+  const basePhoto = masks?.faceImage || imagePreview;
 
   const maskTypes = [
     {
       id: 'oiliness',
       title: 'oiliness',
-      subtitle: 'T-Zone Sebum & Lipid Distribution Mask',
+      subtitle: 'T-Zone Sebum & Lipid Distribution Mask (YouCam AI Engine)',
       icon: Flame,
       color: 'text-amber-400',
       borderColor: 'hover:border-amber-500/50',
       badgeBg: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+      realMask: masks?.oiliness,
       renderOverlay: () => (
         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
           <path d="M 32 25 Q 50 18 68 25 Q 60 38 50 38 Q 40 38 32 25 Z" fill="rgba(245, 158, 11, 0.65)" stroke="#d97706" strokeWidth="0.8" />
@@ -31,11 +32,12 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
     {
       id: 'moisture',
       title: 'moisture',
-      subtitle: 'Transepidermal Hydration & Lipid Lock Mask',
+      subtitle: 'Transepidermal Hydration & Lipid Lock Mask (YouCam AI Engine)',
       icon: Droplets,
       color: 'text-blue-400',
       borderColor: 'hover:border-blue-500/50',
       badgeBg: 'bg-blue-500/10 text-blue-300 border-blue-500/30',
+      realMask: masks?.moisture,
       renderOverlay: () => (
         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
           <path d="M 22 20 Q 50 10 78 20 Q 82 50 75 75 Q 50 90 25 75 Q 18 50 22 20 Z" fill="rgba(30, 58, 138, 0.45)" stroke="#3b82f6" strokeWidth="0.8" />
@@ -51,11 +53,12 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
     {
       id: 'acne',
       title: 'acne & spots',
-      subtitle: 'Inflammatory Papule & Erythema Heatmap Mask',
+      subtitle: 'Inflammatory Papule & Blemish Heatmap Mask (YouCam AI Engine)',
       icon: ShieldAlert,
       color: 'text-rose-400',
       borderColor: 'hover:border-rose-500/50',
       badgeBg: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
+      realMask: masks?.acne,
       renderOverlay: () => (
         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
           {acneHotspots.length > 0 ? (
@@ -72,7 +75,6 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
               />
             ))
           ) : (
-            // If clear skin, render clear status indicator
             <text x="50" y="50" textAnchor="middle" fill="#10b981" fontSize="4" fontWeight="bold">Skin Clear (0 Blemishes)</text>
           )}
         </svg>
@@ -81,23 +83,46 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
     {
       id: 'wrinkles',
       title: 'wrinkles',
-      subtitle: 'Periorbital & Forehead Crease Depth Mask',
+      subtitle: 'Periorbital & Forehead Crease Depth Mask (YouCam AI Engine)',
       icon: Sparkles,
       color: 'text-cyan-400',
       borderColor: 'hover:border-cyan-500/50',
       badgeBg: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30',
+      realMask: masks?.wrinkle || masks?.wrinkles,
       renderOverlay: () => (
         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {/* Cyan Linear Crease Lines */}
           <path d="M 35 24 Q 50 22 65 24" stroke="#06b6d4" strokeWidth="1.5" fill="none" strokeDasharray="3 2" />
           <path d="M 38 28 Q 50 26 62 28" stroke="#06b6d4" strokeWidth="1.5" fill="none" strokeDasharray="3 2" />
-          {/* Crow's feet lines */}
           <path d="M 26 40 L 32 43 M 24 44 L 31 45" stroke="#06b6d4" strokeWidth="1.5" />
           <path d="M 74 40 L 68 43 M 76 44 L 69 45" stroke="#06b6d4" strokeWidth="1.5" />
         </svg>
       )
+    },
+    {
+      id: 'texture',
+      title: 'texture',
+      subtitle: 'Epidermal Smoothness & Roughness Surface Mask (YouCam AI Engine)',
+      icon: Activity,
+      color: 'text-emerald-400',
+      borderColor: 'hover:border-emerald-500/50',
+      badgeBg: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
+      realMask: masks?.texture,
+      renderOverlay: () => null
+    },
+    {
+      id: 'pore',
+      title: 'pore',
+      subtitle: 'Pore Dilation & Expansion Analysis Mask (YouCam AI Engine)',
+      icon: CircleDot,
+      color: 'text-purple-400',
+      borderColor: 'hover:border-purple-500/50',
+      badgeBg: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
+      realMask: masks?.pore,
+      renderOverlay: () => null
     }
   ];
+
+  const hasRealYouCamMasks = Boolean(masks && Object.keys(masks).length > 0);
 
   return (
     <div className="glass-panel rounded-3xl p-6 sm:p-8 mb-12 border border-slate-800">
@@ -110,21 +135,28 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
             <h3 className="font-display font-bold text-xl text-white">Detection Mask Overlay Previews</h3>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Official YouCam API mask overlay results for oiliness, moisture, acne, and wrinkle parameters
+            {hasRealYouCamMasks
+              ? 'Real-time AI mask images extracted directly from YouCam S2S API output'
+              : 'Official YouCam API mask overlay results for oiliness, moisture, acne, and wrinkle parameters'}
           </p>
         </div>
 
-        <div className="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[11px] text-teal-300 font-medium flex items-center space-x-1">
+        <div className={`px-3.5 py-1 rounded-full text-[11px] font-bold flex items-center space-x-1.5 border ${
+          hasRealYouCamMasks
+            ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+            : 'bg-slate-900 text-teal-300 border-slate-800'
+        }`}>
           <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-          <span>YouCam AI Mask Layering</span>
+          <span>{hasRealYouCamMasks ? 'Live YouCam AI Mask Layering Active' : 'YouCam AI Mask Layering'}</span>
         </div>
       </div>
 
       {/* Mask Preview Cards Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {maskTypes.map((mask) => {
           const MaskIcon = mask.icon;
           const score = metrics?.[mask.id]?.score || 80;
+          const realMaskUrl = mask.realMask;
 
           return (
             <div
@@ -132,16 +164,24 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
               onClick={() => setActiveModalMask(mask)}
               className={`glass-panel rounded-2xl overflow-hidden border border-slate-800 ${mask.borderColor} transition-all cursor-pointer group flex flex-col justify-between`}
             >
-              {/* Photo Viewport with Mask SVG Overlay */}
+              {/* Photo Viewport with Real YouCam Mask or SVG Fallback */}
               <div className="relative aspect-[3/4] bg-slate-950 overflow-hidden">
                 <img
-                  src={imagePreview}
-                  alt={`${mask.title} Mask Preview`}
+                  src={basePhoto}
+                  alt={`${mask.title} Base Photo`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
-                {/* Render Parameter Specific SVG Mask */}
-                {mask.renderOverlay()}
+                {/* Render Real YouCam AI Mask PNG Image if present */}
+                {realMaskUrl ? (
+                  <img
+                    src={realMaskUrl}
+                    alt={`${mask.title} YouCam Mask`}
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none mix-blend-screen opacity-95 group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  mask.renderOverlay()
+                )}
 
                 {/* Hover Expand Icon */}
                 <div className="absolute top-2 right-2 p-1.5 rounded-lg bg-slate-950/80 text-slate-300 group-hover:text-white border border-slate-800 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity">
@@ -154,7 +194,7 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
               </div>
 
               {/* Card Footer Label */}
-              <div className="p-3 bg-slate-900/90 text-center border-t border-slate-800">
+              <div className="p-2.5 bg-slate-900/90 text-center border-t border-slate-800">
                 <h4 className="font-bold text-xs text-white capitalize group-hover:text-teal-300 transition-colors flex items-center justify-center space-x-1">
                   <MaskIcon className={`w-3.5 h-3.5 ${mask.color}`} />
                   <span>{mask.title}</span>
@@ -185,11 +225,19 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
 
             <div className="relative aspect-[3/4] bg-black overflow-hidden">
               <img
-                src={imagePreview}
+                src={basePhoto}
                 alt={activeModalMask.title}
                 className="w-full h-full object-cover"
               />
-              {activeModalMask.renderOverlay()}
+              {activeModalMask.realMask ? (
+                <img
+                  src={activeModalMask.realMask}
+                  alt={activeModalMask.title}
+                  className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-95"
+                />
+              ) : (
+                activeModalMask.renderOverlay()
+              )}
             </div>
 
             <div className="p-4 bg-slate-900 border-t border-slate-800 text-center text-xs text-slate-300">
@@ -203,3 +251,4 @@ export default function MaskOverlayCards({ imagePreview, metrics, heatmap = [] }
     </div>
   );
 }
+

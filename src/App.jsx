@@ -11,6 +11,7 @@ import ProductMatch from './components/ProductMatch';
 import ReportExport from './components/ReportExport';
 import ImageQualityCard from './components/ImageQualityCard';
 import MaskOverlayCards from './components/MaskOverlayCards';
+import GeminiConsultationCard from './components/GeminiConsultationCard';
 import { Sparkles, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { analyzeImagePixelsRealtime } from './utils/imageAnalyzer';
 import { processAndResizeImage } from './utils/imageResizer';
@@ -203,6 +204,9 @@ export default function App() {
                   {/* 1. Overall Score & Skin Overview */}
                   <SkinDashboard analysisResult={analysisResult} />
 
+                  {/* Gemini 1.5/2.5 Flash Multimodal Skin Consultation & Next Steps */}
+                  <GeminiConsultationCard consultation={analysisResult.geminiConsultation} />
+
                   {/* 2. Visual Heatmap Overlay */}
                   <BlemishHeatmap
                     imagePreview={selectedImage}
@@ -214,6 +218,7 @@ export default function App() {
                     imagePreview={selectedImage}
                     metrics={analysisResult.metrics}
                     heatmap={analysisResult.heatmap}
+                    masks={analysisResult.masks}
                   />
 
                   {/* 3. Core Parameter Breakdown Cards */}

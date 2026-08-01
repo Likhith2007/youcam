@@ -38,8 +38,14 @@ export default function Header({ onReset, apiStatus }) {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Live REST API
               </span>
             ) : (
-              <span className="inline-flex items-center text-amber-400 font-medium" title="API Key not detected in .env - running in high-precision simulated JSON mode">
+              <span className="inline-flex items-center text-amber-400 font-medium" title="API Key not detected in .env">
                 <KeyRound className="w-3 h-3 mr-1" /> Simulation Fallback Mode
+              </span>
+            )}
+
+            {apiStatus?.hasOpenRouterKey && (
+              <span className="inline-flex items-center text-cyan-300 font-medium border-l border-slate-700 pl-2.5 ml-1">
+                <Sparkles className="w-3 h-3 mr-1 text-cyan-400 animate-pulse" /> Gemini 1.5 Flash
               </span>
             )}
           </div>
