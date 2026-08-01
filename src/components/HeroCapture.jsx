@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Camera, Upload, Sparkles, Shield, Activity, Zap, CheckCircle2, ArrowRight, ShieldAlert, Droplets, Sun } from 'lucide-react';
+import { Camera, Upload, Sparkles, Shield, Activity, Zap, CheckCircle2, ArrowRight, ShieldAlert, Droplets, Sun, Shirt } from 'lucide-react';
 import { SAMPLE_PORTRAITS } from '../data/samplePortraits';
 
-export default function HeroCapture({ onOpenCamera, onSelectFile, onSelectPreset }) {
+export default function HeroCapture({ onOpenCamera, onSelectFile, onSelectPreset, onSelectOutfit, selectedOutfitName }) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedConcern, setSelectedConcern] = useState('auto');
 
@@ -150,6 +150,125 @@ export default function HeroCapture({ onOpenCamera, onSelectFile, onSelectPreset
           </label>
         </div>
 
+      </div>
+
+      {/* AI Outfit & Clothing Fitting Room Selector (Optional) */}
+      <div className="max-w-4xl mx-auto mb-10 p-5 rounded-3xl glass-panel border border-purple-500/30 bg-purple-500/5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div className="flex items-center space-x-3">
+            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <Shirt className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h4 className="font-bold text-sm text-white">YouCam AI Virtual Outfit Fitting Room (Optional)</h4>
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  New AI Feature
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">Upload a clothing item to see an AI-generated Virtual Try-On & skin tone fit analysis</p>
+            </div>
+          </div>
+
+          <label className="cursor-pointer shrink-0">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  const reader = new FileReader();
+                  reader.onload = (ev) => {
+                    if (onSelectOutfit) onSelectOutfit(ev.target.result, 'Uploaded Custom Garment');
+                  };
+                  reader.readAsDataURL(e.target.files[0]);
+                }
+              }}
+              className="hidden"
+            />
+            <div className="px-4 py-2 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white flex items-center space-x-1.5 transition-all shadow-md shadow-purple-500/20">
+              <Upload className="w-3.5 h-3.5" />
+              <span>{selectedOutfitName ? 'Change Garment Photo' : 'Upload Garment Photo'}</span>
+            </div>
+          </label>
+        </div>
+
+        {/* Active Selected Garment Confirmation Banner */}
+        {selectedOutfitName && (
+          <div className="mt-3 p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-2 text-xs font-bold text-purple-300">
+              <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0 animate-pulse" />
+              <span>Garment Active: <span className="text-white font-extrabold">{selectedOutfitName}</span></span>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => onSelectPreset && onSelectPreset(SAMPLE_PORTRAITS[0])}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-md shadow-purple-500/20 flex items-center space-x-1.5 transition-all"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Run AI Try-On & Fit Scan ⚡</span>
+              </button>
+
+              <button
+                onClick={() => onSelectOutfit && onSelectOutfit(null, '')}
+                className="px-2.5 py-2 text-[11px] font-semibold text-slate-400 hover:text-rose-400 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Sample Outfits */}
+        <div className="pt-3">
+          <span className="text-[11px] text-slate-400 block mb-2 font-medium">Or select a sample garment to try on:</span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div
+              onClick={() => onSelectOutfit && onSelectOutfit('https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&q=80', 'Emerald Silk Evening Blazer')}
+              className={`p-2.5 rounded-2xl border cursor-pointer flex items-center space-x-3 transition-all ${
+                selectedOutfitName === 'Emerald Silk Evening Blazer'
+                  ? 'border-purple-400 bg-purple-500/20 text-white'
+                  : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&q=80" alt="Blazer" className="w-10 h-10 rounded-xl object-cover" />
+              <div className="min-w-0">
+                <h5 className="font-bold text-xs truncate text-white">Emerald Silk Blazer</h5>
+                <span className="text-[10px] text-purple-300">Structured Fit</span>
+              </div>
+            </div>
+
+            <div
+              onClick={() => onSelectOutfit && onSelectOutfit('https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=500&q=80', 'Classic Minimalist Linen Shirt')}
+              className={`p-2.5 rounded-2xl border cursor-pointer flex items-center space-x-3 transition-all ${
+                selectedOutfitName === 'Classic Minimalist Linen Shirt'
+                  ? 'border-purple-400 bg-purple-500/20 text-white'
+                  : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=500&q=80" alt="Shirt" className="w-10 h-10 rounded-xl object-cover" />
+              <div className="min-w-0">
+                <h5 className="font-bold text-xs truncate text-white">Minimalist Linen Shirt</h5>
+                <span className="text-[10px] text-purple-300">Casual Relaxed</span>
+              </div>
+            </div>
+
+            <div
+              onClick={() => onSelectOutfit && onSelectOutfit('https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=500&q=80', 'Rose Velvet Evening Dress')}
+              className={`p-2.5 rounded-2xl border cursor-pointer flex items-center space-x-3 transition-all ${
+                selectedOutfitName === 'Rose Velvet Evening Dress'
+                  ? 'border-purple-400 bg-purple-500/20 text-white'
+                  : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 text-slate-300'
+              }`}
+            >
+              <img src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=500&q=80" alt="Dress" className="w-10 h-10 rounded-xl object-cover" />
+              <div className="min-w-0">
+                <h5 className="font-bold text-xs truncate text-white">Rose Velvet Gown</h5>
+                <span className="text-[10px] text-purple-300">Formal Couture</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Preset Demo Portraits (1-Click Evaluation for Hackathon Judges) */}

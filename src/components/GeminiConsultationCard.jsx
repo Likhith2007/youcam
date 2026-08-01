@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, Brain, CheckCircle2, AlertTriangle, ArrowRight, ShieldCheck, Stethoscope, Lightbulb } from 'lucide-react';
+import { parseBoldText } from '../utils/textFormatter';
 
 export default function GeminiConsultationCard({ consultation }) {
   if (!consultation) return null;
@@ -38,9 +39,9 @@ export default function GeminiConsultationCard({ consultation }) {
         <div className="mt-6 p-5 rounded-2xl bg-gradient-to-r from-slate-900/90 to-cyan-950/30 border border-cyan-500/20 relative z-10">
           <div className="flex items-start space-x-3">
             <Stethoscope className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
-            <p className="text-sm text-slate-200 leading-relaxed font-medium">
-              {summary}
-            </p>
+            <div className="text-sm text-slate-200 leading-relaxed font-medium">
+              {parseBoldText(summary)}
+            </div>
           </div>
         </div>
       )}
@@ -62,7 +63,7 @@ export default function GeminiConsultationCard({ consultation }) {
                     <span className="w-5 h-5 rounded-full bg-slate-900 border border-slate-800 text-cyan-400 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
-                    <span className="leading-relaxed">{obs}</span>
+                    <div className="leading-relaxed">{parseBoldText(obs)}</div>
                   </li>
                 ))}
               </ul>
@@ -80,9 +81,9 @@ export default function GeminiConsultationCard({ consultation }) {
               </div>
               <ul className="space-y-3 text-xs text-slate-200">
                 {nextSteps.map((step, idx) => (
-                  <li key={idx} className="flex items-start space-x-2.5 p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+                  <li key={idx} className="flex items-start space-x-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80">
                     <ArrowRight className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                    <span className="font-medium leading-relaxed">{step}</span>
+                    <div className="font-medium leading-relaxed">{parseBoldText(step)}</div>
                   </li>
                 ))}
               </ul>
@@ -102,7 +103,7 @@ export default function GeminiConsultationCard({ consultation }) {
           <div className="flex flex-wrap gap-2 pt-1">
             {ingredientsToAvoid.map((item, idx) => (
               <span key={idx} className="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs font-medium text-rose-200">
-                🚫 {item}
+                🚫 {parseBoldText(item)}
               </span>
             ))}
           </div>
@@ -112,3 +113,4 @@ export default function GeminiConsultationCard({ consultation }) {
     </div>
   );
 }
+

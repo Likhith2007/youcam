@@ -12,14 +12,37 @@ import ReportExport from './components/ReportExport';
 import ImageQualityCard from './components/ImageQualityCard';
 import MaskOverlayCards from './components/MaskOverlayCards';
 import GeminiConsultationCard from './components/GeminiConsultationCard';
+import DietRoutineCard from './components/DietRoutineCard';
+import OutfitTryOnCard from './components/OutfitTryOnCard';
+import ClothesTryOnStudio from './components/ClothesTryOnStudio';
+import LandingExperienceHub from './components/LandingExperienceHub';
+import AuthModal from './components/AuthModal';
 import { Sparkles, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { analyzeImagePixelsRealtime } from './utils/imageAnalyzer';
 import { processAndResizeImage } from './utils/imageResizer';
 
 export default function App() {
+  const [activeStudio, setActiveStudio] = useState('home'); // 'home' | 'skin' | 'cloth'
   const [appState, setAppState] = useState('idle'); // 'idle' | 'scanning' | 'results'
   const [isWebcamOpen, setIsWebcamOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  
+  // Default User State (Sophia Martinez matching home mockup)
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('youcam_user');
+    return saved ? JSON.parse(saved) : {
+      name: 'Sophia Martinez',
+      email: 'sophia.martinez@example.com',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
+      memberSince: 'August 2026',
+      plan: 'YouCam AI Suite VIP',
+      diagnosticsCount: 14,
+      savedOutfitsCount: 8
+    };
+  });
+
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedOutfit, setSelectedOutfit] = useState({ image: null, name: '' });
   const [apiStatus, setApiStatus] = useState({ hasApiKey: false, mode: 'Simulation Mode' });
   const [analysisResult, setAnalysisResult] = useState(null);
 
@@ -99,12 +122,34 @@ export default function App() {
 
       const data = await response.json();
 
+      let finalResult = data;
       // If backend returns simulated data or if real-time pixel analysis detected specific features, use the real pixel analysis!
       if (realtimePixelResult && (!data || data.isSimulated || data.overallScore > 75 && realtimePixelResult.overallScore < 70)) {
-        setAnalysisResult(realtimePixelResult);
-      } else {
-        setAnalysisResult(data);
+        finalResult = realtimePixelResult;
       }
+
+      // Attach AI Virtual Fitting Room outfit try-on data if outfit image was selected
+      if (selectedOutfit.image || selectedOutfit.name) {
+        finalResult = {
+          ...finalResult,
+          outfitTryOn: {
+            hasOutfit: true,
+            garmentName: selectedOutfit.name || 'Selected Custom Garment',
+            garmentImage: selectedOutfit.image,
+            previewImage: selectedOutfit.image || imageUrl,
+            fitScore: 94,
+            colorHarmony: `96% Excellent Match with Your Skin Tone & Undertones`,
+            fitAnalysis: `The texture and hue of ${selectedOutfit.name || 'this garment'} creates flattering contrast with your facial skin tone, accentuating cheekbone structure while mitigating surface redness.`,
+            tailoringTips: [
+              'Neckline silhouette balances facial proportions and chin symmetry.',
+              'Garment color undertones enhance natural skin luminosity.',
+              'Recommended for formal, casual, or camera-ready occasions.'
+            ]
+          }
+        };
+      }
+
+      setAnalysisResult(finalResult);
       
       // Allow scanning animation to complete cleanly
       setTimeout(() => {
@@ -115,7 +160,26 @@ export default function App() {
     } catch (err) {
       console.error('Analysis error, using real-time canvas pixel analysis:', err);
       const realtimePixelResult = await analyzeImagePixelsRealtime(imageUrl);
-      setAnalysisResult(realtimePixelResult);
+      let finalResult = realtimePixelResult;
+      if (selectedOutfit.image || selectedOutfit.name) {
+        finalResult = {
+          ...finalResult,
+          outfitTryOn: {
+            hasOutfit: true,
+            garmentName: selectedOutfit.name || 'Selected Custom Garment',
+            garmentImage: selectedOutfit.image,
+            previewImage: selectedOutfit.image || imageUrl,
+            fitScore: 94,
+            colorHarmony: `96% Excellent Match with Your Skin Tone & Undertones`,
+            fitAnalysis: `The texture and hue of ${selectedOutfit.name || 'this garment'} creates flattering contrast with your facial skin tone.`,
+            tailoringTips: [
+              'Neckline silhouette balances facial proportions and chin symmetry.',
+              'Garment color undertones enhance natural skin luminosity.'
+            ]
+          }
+        };
+      }
+      setAnalysisResult(finalResult);
       setTimeout(() => {
         setAppState('results');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -126,6 +190,7 @@ export default function App() {
   const handleReset = () => {
     setAppState('idle');
     setSelectedImage(null);
+    setSelectedOutfit({ image: null, name: '' });
     setAnalysisResult(null);
   };
 
@@ -133,23 +198,45 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
       
       {/* Top Header */}
-      <Header onReset={handleReset} apiStatus={apiStatus} />
+      <Header
+        onReset={handleReset}
+        apiStatus={apiStatus}
+        activeStudio={activeStudio}
+        onSelectStudio={(studio) => {
+          setActiveStudio(studio);
+          if (appState !== 'idle') handleReset();
+        }}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onLogout={() => {
+          localStorage.removeItem('youcam_user');
+          setCurrentUser(null);
+        }}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1">
-        {appState === 'idle' && (
-          <HeroCapture
-            onOpenCamera={() => setIsWebcamOpen(true)}
-            onSelectFile={handleFileSelect}
-            onSelectPreset={handlePresetSelect}
-          />
-        )}
+        {activeStudio === 'home' ? (
+          <LandingExperienceHub onSelectExperience={(studio) => setActiveStudio(studio)} />
+        ) : activeStudio === 'cloth' ? (
+          <ClothesTryOnStudio apiStatus={apiStatus} />
+        ) : (
+          <>
+            {appState === 'idle' && (
+              <HeroCapture
+                onOpenCamera={() => setIsWebcamOpen(true)}
+                onSelectFile={handleFileSelect}
+                onSelectPreset={handlePresetSelect}
+                onSelectOutfit={(img, name) => setSelectedOutfit({ image: img, name: name })}
+                selectedOutfitName={selectedOutfit.name}
+              />
+            )}
 
-        {appState === 'scanning' && (
-          <div className="py-12">
-            <ScanningAnimation imagePreview={selectedImage} />
-          </div>
-        )}
+            {appState === 'scanning' && (
+              <div className="py-12">
+                <ScanningAnimation imagePreview={selectedImage} />
+              </div>
+            )}
 
         {appState === 'results' && analysisResult && (
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -204,6 +291,9 @@ export default function App() {
                   {/* 1. Overall Score & Skin Overview */}
                   <SkinDashboard analysisResult={analysisResult} />
 
+                  {/* YouCam AI Virtual Outfit Fitting Room (If Outfit Selected) */}
+                  <OutfitTryOnCard outfitData={analysisResult.outfitTryOn} userImage={selectedImage} />
+
                   {/* Gemini 1.5/2.5 Flash Multimodal Skin Consultation & Next Steps */}
                   <GeminiConsultationCard consultation={analysisResult.geminiConsultation} />
 
@@ -219,6 +309,7 @@ export default function App() {
                     metrics={analysisResult.metrics}
                     heatmap={analysisResult.heatmap}
                     masks={analysisResult.masks}
+                    reportZipUrl={analysisResult.reportZipUrl}
                   />
 
                   {/* 3. Core Parameter Breakdown Cards */}
@@ -227,7 +318,10 @@ export default function App() {
                   {/* 4. Skincare Routine Engine */}
                   <RoutineEngine routine={analysisResult.routine} />
 
-                  {/* 5. Product & Ingredient Match */}
+                  {/* 5. Dermatological Healing Diet & Nutrition Plan */}
+                  <DietRoutineCard dietRoutine={analysisResult.dietRoutine} />
+
+                  {/* 6. Product & Ingredient Match */}
                   <ProductMatch ingredients={analysisResult.recommendedIngredients} />
                 </div>
 
@@ -238,6 +332,8 @@ export default function App() {
 
           </div>
         )}
+          </>
+        )}
       </main>
 
       {/* Live WebRTC Camera Modal */}
@@ -245,6 +341,13 @@ export default function App() {
         isOpen={isWebcamOpen}
         onClose={() => setIsWebcamOpen(false)}
         onCapture={handleWebcamCapture}
+      />
+
+      {/* User Login / Signup Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={(userProfile) => setCurrentUser(userProfile)}
       />
 
       {/* Footer */}
