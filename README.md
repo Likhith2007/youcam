@@ -102,9 +102,9 @@ graph TD
 
    Edit `.env`:
    ```env
-   YOUCAM_API_KEY=sk-ZT3RNhORt9fva9Tsa5QcTTCD6c-s4yLQXn_WrgRlGjKdbVL40gHhvZARMRSBOmvc
+   YOUCAM_API_KEY=your_youcam_api_key_here
    YOUCAM_API_ENDPOINT=https://yce-api-01.makeupar.com/s2s/v2.0/file/skin-analysis
-   OPENROUTER_API_KEY=sk-or-v1-your-openrouter-key-here
+   OPENROUTER_API_KEY=your_openrouter_api_key_here
    OPENROUTER_MODEL=google/gemini-2.5-flash
    PORT=3001
    ```
